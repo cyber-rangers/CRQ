@@ -1,0 +1,286 @@
+{ Analytica Model Hubbard_and_Seiersen, encoding="UTF-8" }
+SoftwareVersion 6.3.6
+
+
+{ System Variables with non-default values: }
+SampleSize := 10000
+TypeChecking := 1
+Checking := 1
+SaveOptions := 2
+SaveValues := 0
+{!50400|Sys_UseLegacyColors := 1}
+
+{!-50299|DiagramColor Model: 65535,65535,65535}
+{!-50299|DiagramColor Module: 65535,65535,65535}
+{!-50299|DiagramColor LinkModule: 65535,65535,65535}
+{!-50299|DiagramColor Library: 65535,65535,65535}
+{!-50299|DiagramColor LinkLibrary: 65535,65535,65535}
+{!-50299|DiagramColor Form: 65535,65535,65535}
+NodeInfo FormNode: 1,0,0,1,0,0,0,,0,0,,0,0
+NodeColor Text: 65535,65535,65535
+
+{!-60000|Attribute AcpStyles}
+
+
+Model Hubbard_and_Seiersen
+Title: Hubbard and Seiersen, Cybersecurity Risk, Ch. 3 example model
+Description: Translation of a spreadsheet model from Douglas Hubbard and Richard Seiersen's How to Measure Anything in Cybersecurity Risk, Chapter 3. The spreadsheet is available at: https://www.howtomeasureanything.com/cybersecurity/
+Author: K. Mullins, Lumina Decision Systems
+Date: Fri, May 18, 2018 3:24 PM
+DefaultSize: 48,24
+DiagState: 2,508,149,892,775,17,10
+WindState: 2,102,82,720,350
+DiagramColor: 62258,62258,62258
+FontStyle: Arial,15
+FileInfo: 0,Model Hubbard_and_Seiersen,2,2,0,0,C:\Users\hanus\OneDrive\Documents\GitHub\CRQ\ANA-analytica\sample - HTMA Hubbard Seiersen Ch3 model with MDE and easy SOC.ana
+
+Variable P_Event
+Title: P(Event happens)
+Description: The probability that an event occurs. 
+Definition: Table(Event)(0.025,0.025,0.025,0.5256,0.025,0.025,0.025,0.025,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+NodeLocation: 216,40,1
+NodeSize: 48,24
+DefnState: 2,954,209,416,303,0,DFNM
+NodeColor: 65535,59795,19661
+
+Chance Event_Occurrence
+Title: Event Occurrence
+Description: Simulation of whether or not an event occurs (1 if it does occur, 0 if it does not). Modeled as a Bernoulli random variable.
+Definition: Bernoulli( P_Event )
+NodeLocation: 80,120,1
+NodeSize: 64,32
+WindState: 2,318,138,525,350
+ValueState: 2,165,190,561,303,,MEAN
+{!50000|Att_ColumnWidths: [62]}
+
+Chance Event_Impact
+Title: Event Impact
+Description: The financial impact of an event. The financial impact is modeled as a Lognormal random variable. The mean and standard deviation characterizing the event depend on an estimate of the 90% Confidence Interval of impact as estimated by expert judgement or data (outside the scope of this model).
+Definition: LogNormal( mean: mu, stddev:sigma1 )
+NodeLocation: 216,208,1
+NodeSize: 64,32
+WindState: 2,336,97,720,350
+ValueState: 2,184,186,416,303,,STAT
+NumberFormat: 2,D,4,4,0,1,4,0,$,0,"ABBREV",0,,,0,0,15
+
+Variable Expected_Impact
+Title: Expected Impact
+Description: The expected impact of each event, which is the outcome of a two-stage process: whether or not the event happens, and, what the impact of an event is given it does happen.
+Definition: Event_Occurrence * Event_Impact
+NodeLocation: 80,208,1
+NodeSize: 48,24
+ValueState: 2,282,68,416,303,,MEAN
+NumberFormat: 2,D,4,4,0,1,4,0,$,0,"ABBREV",0,,,0,0,15
+Att__TotalsIndex: [Event]
+
+Variable Expected_Total_Loss
+Title: Expected Total Loss
+Description: The total loss, which is a sum over all events.
+Definition: sum( Expected_Impact, Event )
+NodeLocation: 80,280,1
+NodeSize: 48,24
+ValueState: 2,12,100,503,404,0,MEAN
+GraphSetup: Att_GraphValueRange Expected_Total_Loss:|1:1,,0,,1,,,1M,100M,0~
+Att_GraphValueRange Graph_Cdf_Valdim:1,,,1,,0
+NumberFormat: 2,D,4,4,0,1,4,0,$,0,"ABBREV",0,,,0,0,15
+{!40200|Att_GraphSetupSlices: [3,1,DensityIndex,1]}
+
+Variable Inherent_Risk
+Title: Inherent Risk
+Description: Inherent risk represents the risk that exists given the current set of events (e.g., attacks, failures, etc.) without any control measures in place. It is a function of the expected loss magnitude for each event and the likelihood that the event actuall takes place. The curve should be interpreted as the likelihood that the total losses due to events (y-axis) will be greater than some loss threshold (x-axis).
+Definition: Probability( Expected_Total_Loss > Loss_Threshold )
+NodeLocation: 80,352,1
+NodeSize: 48,24
+WindState: 2,-65,121,720,350
+ValueState: 2,178,62,477,372,1,MIDM
+GraphSetup: Att_GraphValueRange Inherent_Risk:1,,,,,,5~
+Att_GraphIndexRange Loss_Threshold:1,,0,,1,,,1M,100M,0
+NumberFormat: 2,%,4,1,0,0,4,0,$,0,"ABBREV",0,,,0,0,15
+
+Variable Cost_of_mitigation
+Title: Cost of proposed mitigation
+Description: The cost to implement a mitigation measure for an event.
+Definition: Table(Event)(42K,42K,42K,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+NodeLocation: 504,208,1
+NodeSize: 64,32
+WindState: 2,-191,161,720,350
+NodeColor: 65535,59795,19661
+NumberFormat: 2,D,4,4,0,1,4,0,$,0,"ABBREV",0,,,0,0,15
+
+Variable Mitigation_Effective
+Title: Mitigation effectiveness
+Description: A factor which reduces the likelihood that an event happens.
+Definition: Table(Event)(0.577,0.577,0.577,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+NodeLocation: 504,120,1
+NodeSize: 64,32
+WindState: 2,2,78,720,350
+ValueState: 2,96,234,416,303,,MIDM
+NodeColor: 65535,59795,19661
+
+Chance Mitigaged_Event_Occu
+Title: Mitigaged Event Occurence
+Description: Simulation of whether or not an event occurs or not (1 or 0), given that mitiation methods have been applied. This is modeled as a Bernoulli random variable.
+Definition: Bernoulli( P_Event * (1-Mitigation_Effective ) )
+NodeLocation: 352,120,1
+NodeSize: 64,32
+WindState: 2,-22,178,720,350
+ValueState: 2,297,166,416,303,,MEAN
+
+Variable Expected_Mitigated_I
+Title: Expected Mitigated Impact
+Description: The expected impact of each event, which is the outcome of a two-stage process: whether or not the event happens given that mitigation measures have been applied, and, what the impact of an event is given it does happen.
+Definition: Mitigaged_Event_Occu * Event_Impact + Cost_of_mitigation
+NodeLocation: 352,208,1
+NodeSize: 48,32
+ValueState: 2,355,230,416,303,0,MEAN
+ReformVal: [Null,Event,Undefined,Undefined,1]
+NumberFormat: 2,D,4,4,0,1,4,0,$,0,"ABBREV",0,,,0,0,15
+Att_XRole: -1
+Att_ColorRole: Null
+
+Variable Expected_Mitigated_L
+Title: Expected Mitigated Loss
+Description: The total loss, which is a sum over all events, including mitigation controls applied and mitigation costs.
+Definition: sum( Expected_Mitigated_I, Event )
+NodeLocation: 352,280,1
+NodeSize: 48,32
+ValueState: 2,280,282,416,303,,MEAN
+NumberFormat: 2,D,4,4,0,1,4,0,$,0,"ABBREV",0,,,0,0,15
+
+Variable Residual_Risk
+Title: Residual Risk
+Description: Inherent risk represents the risk that remains given the current set of events (e.g., attacks, failures, etc.) and set of control measures that have been implemented (which do not guarantee the event will be prevented). It is a function of the expected loss magnitude for each event and the likelihood that the event actually takes place given control measures. The curve should be interpreted as the likelihood that the total losses due to events (y-axis) will be greater than some loss threshold (x-axis). One expects the residual risk curve will have lower probabilities than the inherent risk curve over the same loss threshold set.
+Definition: Probability( Expected_Mitigated_L > Loss_Threshold )
+NodeLocation: 352,344,1
+NodeSize: 48,24
+ValueState: 2,168,273,476,303,1,MIDM
+GraphSetup: Att_GraphValueRange Residual_Risk:1,,,,,,5~
+Att_GraphIndexRange Loss_Threshold:1,,,,1
+NumberFormat: 2,%,4,0,0,0,4,0,$,0,"ABBREV",0,,,0,0,15
+
+Objective Prob__of_Exceeding_L
+Title: Prob. of Exceeding Loss
+Definition: [Inherent_Risk,Residual_Risk,Risk_Tolerance]
+NodeLocation: 216,440,1
+NodeSize: 48,32
+NodeInfo: 1,1,1,1,1,1,0,0,0,0,,0,1,0
+WindState: 2,-22,91,720,350
+ValueState: 2,102,64,1132,643,1,MIDM
+GraphSetup: Att_GraphIndexRange Loss_Threshold:1,,0,,1,,,1M,100M,0
+NumberFormat: 2,%,4,0,0,0,4,0,$,0,"ABBREV",0,,,0,0,15
+
+Module Event_Impact_CI_data
+Title: Event Impact CI data
+Author: Michal Hanus~
+Cyber Rangers
+Date: út, pro 12, 2023 9:58 dop.
+NodeLocation: 216,128,1
+NodeSize: 48,32
+DiagState: 2,0,0,1321,639,17,10
+NodeColor: 65535,59795,19661
+
+Variable Lower_Bound
+Title: Lower Bound
+Description: These data were gathered from experts in our example, and represent their best estimate of the lower bound of a 90% Confidence Interval (i.e., the 5th percentile value). Together with the Upper Bound estimates
+Definition: Table(Event)(2.85M,1.125M,1.68M,10K,3M,336K,1.5M,1.008M,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+NodeLocation: 96,48,1
+NodeSize: 48,24
+WindState: 2,299,219,720,350
+DefnState: 2,148,154,966,720,0,DFNM
+NodeColor: 65535,59795,19661
+
+Variable Upper_Bound
+Title: Upper Bound
+Definition: Table(Event)(28.5M,5.625M,13.44M,250K,30M,2.688M,30M,6.596M,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+NodeLocation: 96,104,1
+NodeSize: 48,24
+DefnState: 2,289,151,756,565,0,DFNM
+NodeColor: 65535,59795,19661
+
+Variable mu
+Title: mu
+Definition: ( Upper_Bound  - Lower_Bound  )/2
+NodeLocation: 200,104,1
+NodeSize: 32,16
+
+Variable sigma1
+Title: sigma
+Definition: (Upper_Bound- Lower_Bound)/3.29
+NodeLocation: 200,48,1
+NodeSize: 32,16
+
+Close Event_Impact_CI_data
+
+Variable Risk_Tolerance
+Title: Risk Tolerance
+Definition: Local curve := cubicinterp( Risk_Tolerance_Loss_, Stated_Risk_Toleranc, Loss_Subset );~
+~
+curve[ Loss_Subset = Loss_Threshold ]
+NodeLocation: 352,440,1
+NodeSize: 48,24
+WindState: 2,-117,166,720,350
+ValueState: 2,296,298,354,303,1,MIDM
+GraphSetup: Att_GraphIndexRange Loss_Threshold:1,,,,1~
+Att_ContLineStyle Graph_Primary_Valdim:1~
+Att_GraphValueRange Risk_Tolerance:1,,,,,,5
+NumberFormat: 2,%,4,2,0,0,4,0,$,0,"ABBREV",0,,,0,0,15
+
+Variable Stated_Risk_Toleranc
+Title: Stated Risk Tolerance
+Definition: Table(Risk_Tolerance_Loss_)(0.9,0.7,0.5,0.4,0.3,0.25,0.2,0.15,0.12,0.1,0.075,0.06,0.05,0.041,0.037,0.0334375,0.02964,0.026,0.021,0.016,0.011,0.01,8.64m,7.0475m,6.72m,5.3125m,5.48m,5.8775m,6.16m,5.9825m,5m)
+NodeLocation: 496,440,1
+NodeSize: 48,32
+DefnState: 2,210,243,1072,303,0,DFNM
+ValueState: 2,104,106,416,303,1,MIDM
+NodeColor: 65535,59795,19661
+
+Module Indexes
+Title: Indexes
+Author: Michal Hanus~
+Cyber Rangers
+Date: út, pro 12, 2023 9:58 dop.
+NodeLocation: 64,32,1
+NodeSize: 48,24
+NodeInfo: 1,0,0,1,1,1,0,,0,,0,,,
+WindState: 2,83,121,720,350
+
+Index Event
+Att_PrevIndexValue: ['Event 1','Event 2','Event 3','Event 4','Event 5','Event 6','Event 7','Event 8','Event 9','Event 10','Event 11','Event 12','Event 13','Event 14','Event 15','Event 16','Event 17','Event 18','Event 19','Event 20','Event 21','Event 22','Event 23','Event 24','Event 25','Event 26','Event 27','Event 28','Event 29','Event 30','Event 31','Event 32','Event 33','Event 34','Event 35','Event 36','Event 37','Event 38','Event 39','Event 40','Event 41','Event 42','Event 43','Event 44','Event 45','Event 46','Event 47','Event 48','Event 49','Event 50']
+Title: Event
+Description: Index of events
+Definition: 'Event ' & 1..50
+NodeLocation: 112,48,1
+NodeSize: 64,24
+WindState: 2,22,89,720,350
+
+Index Loss_Threshold
+Title: Loss Exceeded
+Description: A sequence of loss values used to create loss exceedence curves for inherent risk, residual risk, and risk tolerance.
+Definition: Sequence( 0, 100M, 500K )
+NodeLocation: 112,104,1
+NodeSize: 64,24
+WindState: 2,76,161,720,350
+NumberFormat: 2,D,4,4,0,1,4,0,$,0,"ABBREV",0,,,0,0,15
+
+Index Loss_Subset
+Title: Loss Subset
+Description: Subset of the Loss Exceeded sequence over which we want to interpolate our Risk Tolerance curve.
+Definition: Sequence( 3M, 80M, 500K )
+NodeLocation: 240,104,1
+NodeSize: 64,24
+WindState: 2,55,125,720,350
+
+Index Risk_Tolerance_Loss_
+Att_PrevIndexValue: [3M,3.5965M,4.032M,4.3755M,4.696M,5.0625M,5.544M,6.2095M,7.128M,8.3685M,10M,12.0235M,14.368M,16.9945M,19.864M,22.9375M,26.176M,29.5405M,32.992M,36.4915M,40M,43.595M,47.36M,51.265M,55.28M,59.375M,63.52M,67.685M,71.84M,75.955M,80M]
+Title: Risk Tolerance Loss Values
+Description: Sequence of loss values used to define the risk tolerance curve. These values are the output of a cubic Bezier curve fit function, used to smooth the four pairs of data provided in the example model: ~
+[(3M, 99%),(10M, 15%), (40M, 2%), (80M, .5%)]
+Definition: [3M,3.5965M,4.032M,4.3755M,4.696M,5.0625M,5.544M,6.2095M,7.128M,8.3685M,10M,12.0235M,14.368M,16.9945M,19.864M,22.9375M,26.176M,29.5405M,32.992M,36.4915M,40M,43.595M,47.36M,51.265M,55.28M,59.375M,63.52M,67.685M,71.84M,75.955M,80M]
+NodeLocation: 112,160,1
+NodeSize: 64,24
+WindState: 2,37,72,672,350
+
+Close Indexes
+
+Close Hubbard_and_Seiersen
+
