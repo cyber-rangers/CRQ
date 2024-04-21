@@ -1,0 +1,17 @@
+﻿{Autosave/Recovery file for C:\Users\hanus\OneDrive\Documents\GitHub\CRQ\ANA-analytica\sample - HTMA Hubbard Seiersen Ch3 model.ana}
+{ Analytica Model Hubbard_and_Seiersen, encoding="UTF-8" }
+SoftwareVersion 6.3.6
+
+
+DiagState Hubbard_and_Seiersen:2,105,77,580,482,17,10
+DiagState Hubbard_and_Seiersen:2,105,77,930,482,17,10
+DiagState Hubbard_and_Seiersen:2,105,77,1026,482,17,10
+DiagState Hubbard_and_Seiersen:2,105,77,1026,483,17,10
+DiagState Hubbard_and_Seiersen:2,105,77,1026,573,17,10
+DiagState Hubbard_and_Seiersen:2,105,77,1026,618,17,10
+DiagState Hubbard_and_Seiersen:2,105,77,1026,619,17,10
+ValueState Prob__of_Exceeding_L:2,102,64,440,432,1,XCDZ
+ValueState Prob__of_Exceeding_L:2,102,64,439,432,1,MIDM
+ValueState Prob__of_Exceeding_L:2,102,64,1024,432,1,MIDM
+ValueState Prob__of_Exceeding_L:2,102,64,1030,432,1,MIDM
+ValueState Prob__of_Exceeding_L:2,102,64,1038,432,1,MIDM
