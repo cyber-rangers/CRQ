@@ -1,0 +1,654 @@
+{ Analytica Model Rentvsbuy, encoding="UTF-8" }
+SoftwareVersion 6.4.8
+
+
+{ System Variables with non-default values: }
+Time := Sequence(1,Years,1)
+Description Time: Období v Dynamické Simulaci jsou určena v definici časové proměnné (Time). Obvykle se jedná o seznam čísel nebo popisků, typicky v určité dané jednotce času (dny, týdny, měsíce, roky atd.). Použijte funkci Dynamic() ve svých proměnných k provádění Dynamické Dimulace.
+WindState Time: 2,92,122,720,350
+SampleSize := 100
+DistribSize := 30
+Windows := 1
+TypeChecking := 1
+Checking := 1
+SaveOptions := 2
+SaveValues := 0
+Att_CatLineStyle Graph_Stats_Valdim: 9
+Att_ContLineStyle Graph_Pdf_Valdim: 6
+{!40400|Sys_PdfSmoothMethod := 1}
+{!40400|Sys_WindowsMaximized := 1}
+{!50400|Sys_UseLegacyColors := 1}
+
+{!-50299|DiagramColor Model: 65535,65535,65535}
+{!-50299|DiagramColor Module: 65535,65535,65535}
+{!-50299|DiagramColor LinkModule: 65535,65535,65535}
+{!-50299|DiagramColor Library: 65535,65535,65535}
+{!-50299|DiagramColor LinkLibrary: 65535,65535,65535}
+{!-50299|DiagramColor Form: 65535,65535,65535}
+NodeInfo FormNode: 1,0,0,,0,0,,,,1,,,0
+{!-50299|NodeColor Text: 62258,62258,62258}
+
+{!-60000|Attribute AcpStyles}
+Attribute Reference
+
+Attribute Date_bough
+
+
+
+Model Rentvsbuy
+Title: Pronájem vs. Koupě
+Description: Finanční model porovnávající čistou současnou hodnotu (NPV, net present value) pronájmu a koupě domu.~
+~
+Tento model využívá konvenci finančních (peněžních) toků: nód se zápornou finanční hodnotou znamená, že peníze odtékají (jsou utráceny, výdaje, náklady), zatímco uzel s kladnou hodnotou znamená, že peníze přitékají (jsou přijímány, příjmi, zisky).~
+~
+Nejdůležitější proměnné, které je třeba přizpůsobit vaší situaci, jsou:~
+~
+ - Kupní cena (140 000 $)~
+ - Míra inflace (normální rozdělení s průměrem 3,5 % a směrodatnou odchylkou 1,3 %)~
+ - Nominální míra zhodnocení (normální rozdělení s průměrem rovným dané míře inflace - hodnota proměnné "Inflation" - a směrodatnou odchylkou 3 %)~
+ - Nominální diskontní sazba (6 %)~
+ - Časový horizont investice (10 let)~
+ - Měsíční nájemné (1 200 $, v modulu Náklady na pronájem)~
+ - Úroková sazba hypotéky (9,5 % fixní, v modulu Náklady na koupi)~
+
+Author: Michaela Koudelková
+Date: Wed, Jun 6, 1990 12:38 AM
+DefaultSize: 52,20
+DiagState: 2,8,4,843,246,1,10
+NodeColor: -1,-6554,-19660
+DiagramColor: 32348,-9825,-8739
+FontStyle: Helvetica, 12
+FileInfo: 0,Model Rentvsbuy,2,2,0,0,C:\Users\hanus\OneDrive\Documents\CyberRangers\Cyb3r Days 2022\EDU Pronájem_vs_Hypotéka_6.2_Model_CZ.ana
+{!40400|Att_clearTypeFonts: -1}
+{!60005|Att_AttsToShow: Object Attribute, Attribute BalloonHelp, Attribute AcpStyles, Attribute Reference, Attribute Date_bough}
+
+Module Model1
+Title: Model Pronájem vs Koupě
+Description: Tento nód obsahuje podrobnou strukturu modelu Pronájem vs. Koupě
+Author: Michaela Koudelková
+Date: Sat, Dec 30, 1995 11:00 PM
+DefaultSize: 48,24
+NodeLocation: 416,240,1
+NodeSize: 56,32
+DiagState: 2,546,46,433,215,17,10
+{!60005|Att_AttsToShow: Attribute BalloonHelp}
+
+Decision Price
+Title: Pořizovací cena v USD
+Units: $
+Description: Pořizovací cena domu.
+Definition: 140K
+NodeLocation: 72,40
+NodeSize: 48,20
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,102,83,476,280
+Aliases: FormNode Buying_price
+NodeColor: -26215,-1,-16110
+{!40700|Att_CellFormat: CellEntry(0,1,0)}
+
+Variable Years
+Title: Časový horizont v letech
+Units: years
+Description: Časový úsek od nákupu do prodeje (tj. časový horizont pro tuto analýzu).~
+Pozn.: Hodnota musí být celé číslo (integer).
+Definition: 10
+NodeLocation: 216,176
+NodeSize: 48,20
+NodeInfo: 1,1,1,1,1,1,0
+Aliases: FormNode Time_horizon
+NodeColor: 4658,-14548,-1
+{!40700|Att_CellFormat: CellEntry(0,1,0)}
+
+Objective Pv_total_cost
+Title: Současná hodnota koupě a pronájmu
+Units: $
+Description: Tento nód porovnává čistou současnou hodnotu nákladů na koupi s čistou současnou hodnotou nákladů na pronájem. Záporná hodnota označuje náklady (výdaje).
+Definition: Table(Buy_or_rent)(PV_buy,Pv_rent)
+NodeLocation: 360,152,1
+NodeSize: 56,24
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,413,75,515,300
+DefnState: 1,92,149,423,138,0,MIDM
+ValueState: 2,139,99,509,354,1,PDFP
+Aliases: FormNode Total_cost_of_buying
+NodeColor: -1,-25694,-23186
+ReformVal: [Buy_or_rent,Buy_or_rent,Undefined,2,1]
+
+Variable Discount
+Title: Diskontní sazba v %/rok
+Units: %/year
+Description: Sazba pro převod budoucích toků peněz na současný stav (současnou hodnotu). Sazba reprezentuje současnou hodnotu peněz pro kupujícího.
+Definition: 6
+NodeLocation: 72,176
+NodeSize: 48,20
+NodeInfo: 1,0,1,1,1,1,0
+Aliases: Alias Al2, FormNode Nominal_discount_rat
+NodeColor: 4658,-14548,-1
+{!40700|Att_CellFormat: CellEntry(0,1,0)}
+
+Chance Appreciation
+Title: Míra zhodnocení v %/rok
+Units: %/year
+Description: Průměrné roční zhodnocení (včetně inflace) během vlastnictví nemovitosti.
+Definition: Normal( Inflation, 3 )
+NodeLocation: 216,40
+NodeSize: 52,20
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 1,200,60
+ValueState: 1,167,98,420,231,1,PDFP
+Aliases: FormNode Nominal_rate_of_appr
+NodeColor: 20492,-6282,-1
+NumberFormat: 1,D,4,0,0,0
+
+Decision Buy_or_rent
+Att_PrevIndexValue: ['Buy','Rent']
+Title: Koupě nebo pronájem
+Description: Rozhodnutí (volba) o koupi nebo pronájmu.
+Definition: ['Buy','Rent']
+NodeLocation: 360,40,1
+NodeSize: 48,24
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,503,60,720,350
+ValueState: 1,152,162,416,303,0,MIDM
+NodeColor: -26215,-1,-16110
+
+Chance Inflation
+Title: Míra inflace v %/rok
+Units: %/year
+Description: Průměrná míra inflace během investičního období, tj. časového horizontu.
+Definition: Normal( 3.5, 1.3 )
+NodeLocation: 72,104
+NodeSize: 52,20
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 1,133,151
+ValueState: 1,72,82,416,303,1,PDFP
+Aliases: FormNode Rate_of_inflation
+NodeColor: 20492,-6282,-1
+
+Module Buy
+Title: Náklady na koupi
+Description: Tento modul obsahuje náklady na koupi a vlastnictví domu během sledovaného období.
+Author: Michaela Koudelková
+Date: Wed, Feb 8, 1995 11:39 AM
+DefaultSize: 48,24
+NodeLocation: 216,104,1
+NodeSize: 48,24
+NodeInfo: 1,1,1,1,1,1,0
+DiagState: 2,80,257,1134,137,1,10
+NodeColor: -1,-10283,-21468
+
+Variable Downpaymt
+Title: Akontace (USD)
+Units: $
+Description: Výše akontace při koupi nemovitosti.~
+Tato částka by měla být záporná, protože se jedná o výdaj.
+Definition: (-Percent_down_payment/100)*Price
+NodeLocation: 72,184,1
+NodeSize: 56,24
+NodeInfo: 1,1,1,1,1,1,0,,0
+WindState: 2,59,219,548,300
+ValueState: 1,40,50,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Variable Mortgage
+Title: Výše hypotéky (USD)
+Units: $
+Description: Celková výše přijatého hypotečního úvěru.
+Definition: Price + DownPaymt
+NodeLocation: 72,104,1
+NodeSize: 56,24
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,102,83,534,273
+ValueState: 1,136,146,334,256,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Module Pv_ownership_cost
+Title: Náklady na vlastnictví hrazené z vlastních prostředků
+Description: Roční náklady, jako jsou splátky hypotéky, daně, pojištění a údržba nemovitosti.
+Author: Michaela Koudelková
+Date: Wed, Sep 26, 1990 11:30 PM
+DefaultSize: 48,24
+NodeLocation: 216,104,1
+NodeSize: 56,40
+DiagState: 2,42,93,781,248,1,10
+NodeColor: -1,-6554,-19660
+FontStyle: Helvetica, 12
+
+Chance Taxrate
+Title: Mezní daňová sazba (%)
+Units: %
+Description: Mezní  (nejvyšší možná) daňová sazba včetně federálních a státních daní. Předpokládá použití nejvyšších daňových pásem a nebere v úvahu snížení ve formě odpočtů.~
+Nejistota ±2 % ohledně možných změn federálních a/nebo státních daní.
+Definition: 33%+9%+Normal(0,2%)
+NodeLocation: 64,112,1
+NodeSize: 56,24
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,136,146,416,303,1,PDFP
+NodeColor: 20492,-6282,-1
+
+Variable Payments
+Title: Splátky hypotéky (USD/rok)
+Units: $/year
+Description: Roční splátky hypotéky (úroky plus jistina).~
+Předpokládá se hypotéka s pevnou úrokovou sazbou na 30 let a stejnými měsíčními splátkami prováděnými na konci každého měsíce.
+Definition: 12*Pmt(Mort_rate/1200,360,Mortgage)
+NodeLocation: 216,40,1
+NodeSize: 56,32
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 1,97,84
+ValueState: 1,88,98,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Variable Tax_red
+Title: Snížení daně z příjmu (USD/rok)
+Units: $/year
+Description: Roční snížení daně z příjmů díky odečitatelným položkám (úroky z hypotéky/úvěru).
+Definition: -Taxrate*(Interest_pay+Property_tax)
+NodeLocation: 216,112,1
+NodeSize: 56,32
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 1,186,479
+ValueState: 1,72,82,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Variable Ann_cash_flow
+Title: Přehled ročních peněžních toků z vlastnictví (USD)
+Units: $
+Description: Tabulka ročních peněžních toků souvisejících s vlastnictvím, včetně splátek hypotéky, daně z nemovitosti, nákladů na údržbu a pojištění, snížených o daňové odpočty.
+Definition: Payments+Property_tax+Insurance+Maintenance+Tax_red
+NodeLocation: 360,104,1
+NodeSize: 48,48
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,0,0,720,350
+ValueState: 2,120,130,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Variable Interest_pay
+Title: Platby úroků (USD/rok)
+Units: $/year
+Description: Tabulka ročních úrokových plateb (úroků zaplacených v daném roce), seřazená podle let.
+Definition: For x = Time Do Cumipmt(Mort_rate/1200,360,Mortgage,12*x-11,12*x)
+NodeLocation: 72,40,1
+NodeSize: 56,24
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,92,122,720,350
+ValueState: 2,152,162,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Variable Property_tax
+Title: Roční daň z nemovitostí (USD/rok)
+Units: $/year
+Description: Roční daň z nemovitosti. Předpokládá státní daň ve výši 1 % nad inflací (obsahuje navýšení o aktuální hodnotu inflace a nárůst v čase) plus 1,5 % lokálních daní.
+Definition: -((1+Inflation/100)^Time)*Price*1.5%
+NodeLocation: 72,216,1
+NodeSize: 48,32
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,104,114,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Chance Maintenance
+Title: Roční náklady na údržbu domu (USD/rok)
+Units: $/year
+Description: „Roční náklady na údržbu domu (bez zhodnocovacích úprav).~
+Předpokládá se normální rozdělení s mediánem na úrovni 1 % kupní ceny, přičemž náklady rostou úměrně inflaci.“
+Definition: -((1+Inflation/100)^Time)*Normal(1%*Price, .5%*Price)
+NodeLocation: 336,216,1
+NodeSize: 48,40
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,136,146,416,303,0,MIDM
+NodeColor: 20492,-6282,-1
+
+Chance Insurance
+Title: Roční náklady na pojištění nemovitosti (USD/rok)
+Units: $/year
+Description: „Roční náklady na pojištění nemovitosti.~
+Předpokládá se, že cena nemovitosti je 50 % původní pořizovací ceny a pojištění činí 0,3 %, přičemž se zvyšuje tempem inflace.“
+Definition: -((1+Inflation/100)^Time)*Price*50%*Lognormal(.3%, 1.5)
+NodeLocation: 208,216,1
+NodeSize: 56,40
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,152,162,416,303,0,MIDM
+NodeColor: 20492,-6282,-1
+ReformVal: [Time,ProbIndex]
+
+Variable Pv_own
+Title: Současná hodnota vlastnictví
+Description: Současná hodnota peněžních toků spojených s náklady na vlastnictví.
+Definition: Npv(Discount/100,Ann_cash_flow,Time)
+NodeLocation: 512,104,1
+NodeSize: 48,32
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 2,152,162,416,303,1,PDFP
+NodeColor: 4658,-14548,-1
+
+Close Pv_ownership_cost
+
+Variable Mort_rate
+Title: Úroková sazba hypotéky v %/rok
+Units: %/year
+Description: Roční úroková sazba na hypotéce.
+Definition: 9.5
+NodeLocation: 216,32
+NodeSize: 52,20
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,486,136,720,350
+ValueState: 1,88,282,371,190,0,MIDM
+Aliases: FormNode Mortgage_interest_ra
+NodeColor: 4658,-14548,-1
+{!40700|Att_CellFormat: CellEntry(0,1,0)}
+
+Module Pv_sales_proceeds
+Title: Budoucí výnosy z prodeje
+Description: Budoucí výnosy z prodeje“ označují peněžní prostředky, které očekáváte získat z prodeje nemovitosti v budoucnu. Tento pojem je klíčový při finanční analýze, protože umožňuje odhadnout, kolik peněz bude přicházet z prodeje nemovitosti po určitém čase. Výnosy mohou zahrnovat čistou částku po odečtení všech nákladů spojených s prodejem, jako jsou provize realitní kanceláře, opravy, daně a další poplatky.
+Author: M.H.
+Date: Fri, Jan 1, 1904 10:39 AM
+DefaultSize: 48,24
+NodeLocation: 216,184,1
+NodeSize: 56,32
+DiagState: 2,42,93,445,243,1,10
+NodeColor: -1,-6554,-19660
+FontStyle: Helvetica, 12
+
+Variable Princ_pay
+Title: Splátky jistiny hypotéky (USD/rok)
+Units: $/year
+Description: Tabulka ročních splátek jistiny, indexovaná podle roku. Strukturovaný přehled, který ukazuje, kolik peněz je spláceno jako jistina (hlavní částka úvěru) každý rok, přičemž údaje jsou organizovány podle jednotlivých let.
+Definition: For x = Time Do Cumprinc(Mort_rate/1200,360,Mortgage,12*x-11,12*x)
+NodeLocation: 72,184,1
+NodeSize: 56,32
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,136,146,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Variable Profit
+Title: Čistý výnos z prodeje (USD tis.)
+Units: $K
+Description: Čistý výnos z prodeje domu na konci období vlastnictví.~
+Rovná se prodejní ceně snížené o náklady na prodej a zbývající jistinu hypotéky.
+Definition: Sell_price+Selling_cost-End_mortgage
+NodeLocation: 216,112,1
+NodeSize: 56,32
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,88,98,416,303,0,PDFP
+NodeColor: 4658,-14548,-1
+
+Variable Sell_price
+Title: Prodejní cena (USD)
+Units: $
+Description: Prodejní cena, rovná se kupní ceně vynásobené složeným průměrným ročním zhodnocením.
+Definition: Price * (1+Appreciation/100)^Years
+NodeLocation: 72,112,1
+NodeSize: 48,24
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 1,88,98
+ValueState: 1,88,98,416,303,1,PDFP
+NodeColor: 4658,-14548,-1
+
+Variable End_mortgage
+Title: Zbývající jistina hypotéky (USD)
+Units: $
+Description: Zbývající hypoteční úvěr při prodeji.  Částka hypotečního úvěru, která zůstává nesplacená v době, kdy je nemovitost prodána. Při prodeji domu je třeba tuto zbývající částku uhradit z prodejní ceny, což ovlivňuje čistý výnos z prodeje.
+Definition: Mortgage + Sum(Princ_pay, Time)
+NodeLocation: 216,184,1
+NodeSize: 56,32
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,56,66,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Variable Selling_cost
+Title: Náklady na prodej domu (USD)
+Units: $
+Description: Náklady na prodej domu.~
+Předpokládá se 6% provize pro makléře + 1% na úpravy a závěrečné náklady na straně majitele.~
+~
+Poznámka: Záporná hodnota označuje náklady.
+Definition: -7%  * Sell_price
+NodeLocation: 144,40,1
+NodeSize: 48,32
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,104,114,416,303,1,PDFP
+NodeColor: 4658,-14548,-1
+
+Variable Pv_sale
+Title: Současná hodnota výnosů z prodeje (USD)
+Units: $
+Description: Současná hodnota výnosů z prodeje. Hodnota peněžních prostředků získaných z prodeje nemovitosti, převedenou na jejich současnou hodnotu pomocí diskontní sazby. To umožňuje porovnat budoucí peněžní toky s jejich hodnotou dnes, což je užitečné při finanční analýze a rozhodování o prodeji nemovitosti.
+Definition: Profit/(1+Discount/100)^Years
+NodeLocation: 360,112,1
+NodeSize: 64,32
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,0,0,720,350
+ValueState: 1,88,98,416,303,0,PDFP
+NodeColor: 4658,-14548,-1
+
+Close Pv_sales_proceeds
+
+Module Opportunity_cost
+Title: Hodnota obětované příležitosti
+Description: Hodnota obětované příležitosti“ (v angličtině „opportunity cost“) je ekonomický pojem vyjadřující hodnotu nejlepší alternativy, které se vzdáváme, když se rozhodneme pro určitou možnost. Zjednodušeně řečeno, je to „co jiného bych mohl udělat za stejné peníze nebo čas, a o co tím přicházím?“ Tento koncept pomáhá vyčíslit ztrátu příležitosti investovat zdroje jinde, a tak lépe porovnat reálnou cenu různých rozhodnutí.
+Author: Michaela Koudelková
+Date: Fri, Feb 3, 1995 4:21 PM
+DefaultSize: 48,24
+NodeLocation: 216,256,1
+NodeSize: 56,32
+DiagState: 2,42,93,457,205,1,10
+NodeColor: -1,-6554,-19660
+
+Variable Foregone_interest
+Title: Ušlý úrok z akontace (USD)
+Units: $
+Description: Ušlý úrok po zdanění, který by mohl být získán investováním akontace a nákladů na stěhování za úrokovou sazbu spoření; 'náklad obětované příležitosti. Úrok, který jste mohli získat, kdybyste místo použití peněz na akontaci investovali tyto prostředky do jiného finančního nástroje, například spořicího účtu nebo dluhopisu. „Ušlý úrok“ tedy představuje příležitostnou ztrátu výnosu, kterou jste přijali tím, že jste peníze použili na akontaci namísto jejich investování.
+Definition: (DownPaymt+Moving_costs)*(((1+ Interest_dep/100)^Years)- 1)
+NodeLocation: 208,72,1
+NodeSize: 56,32
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 1,104,114,416,303,1,PDFP
+NodeColor: 4658,-14548,-1
+
+Variable Interest_dep
+Title: Úroková sazba spoření v %/rok
+Units: %/year
+Description: Úroková sazba po zdanění dostupná z akontace, kdyby byla investována jinde, např. do termínovaného vkladu nebo městských dluhopisů. Předpokládá se, že je rovna míře inflace. Úroková sazba, kterou byste mohli získat na peníze použité jako akontace, pokud byste je místo koupě domu investovali do jiných finančních nástrojů, jako jsou termínované vklady (CD) nebo městské dluhopisy. Předpokládá se, že tato úroková sazba po zdanění bude rovna míře inflace.
+Definition: Inflation
+NodeLocation: 80,72,1
+NodeSize: 56,32
+NodeInfo: 1,1,1,1,1,1,0
+NodeColor: 4658,-14548,-1
+
+Variable Pv_forgone_interest
+Title: Současná hodnota ušlého úroku
+Description: Označuje hodnotu úroků, které jste mohli získat z alternativní investice, ale rozhodli jste se je neinvestovat. Tento koncept zahrnuje převod budoucích ušlých úroků na jejich současnou hodnotu pomocí diskontní sazby. To umožňuje porovnat potenciální výnosy z alternativních investic s aktuálními finančními rozhodnutími, jako je například nákup nemovitosti.
+Definition: Foregone_interest/(1+Discount/100)^Years
+NodeLocation: 360,72,1
+NodeSize: 56,32
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 1,151,196
+ValueState: 1,104,114,416,303,1,PDFP
+NodeColor: 4658,-14548,-1
+NumberFormat: 1,D,3,2,0,0
+
+Alias Al2
+Title: Discount rate
+Definition: 1
+NodeLocation: 208,152,1
+NodeSize: 48,20
+NodeInfo: 1,1,1,1,1,1,0
+NodeColor: 4658,-14548,-1
+Original: Discount
+
+Close Opportunity_cost
+
+Variable PV_buy
+Title: Současná hodnota koupě (USD)
+Units: $
+Description: Celková současná hodnota peněžních toků spojených s koupí, včetně akontace, ročních výdajů, výnosu z budoucího prodeje a ušlého úroku z akontace (příležitostná ztráta výnosu, obětovaná příležitost).
+Definition: Pv_own+Pv_sale+Pv_forgone_interest+Downpaymt+Moving_costs
+NodeLocation: 360,104,1
+NodeSize: 48,32
+NodeInfo: 1,1,1,1,1,1,0
+ValueState: 2,163,91,459,304,1,PDFP
+NodeColor: 4658,-14548,-1
+
+Variable Moving_costs
+Title: Náklady na stěhování (USD)
+Units: $
+Description: Náklady spojené se stěhováním, náklady spojené se samotným nastěhováním a zprovozněním nového místa k bydlení (zřízení nebo přepis energií a služeb, úklid) a náklady spojené s nákupem nemovitosti (sjednání hypotéky, právní a administrativní poplatky, daně a poplatky, pojištění nemovitosti). Předpokládá se, že činí 1,5 % z kupní ceny.
+Definition: -1.5%*Price
+NodeLocation: 360,256,1
+NodeSize: 48,32
+NodeInfo: 1,1,1,1,1,1,0
+WindState: 2,0,0,720,350
+ValueState: 2,114,64,416,303,0,MIDM
+NodeColor: 4658,-14548,-1
+
+Variable Percent_down_payment
+Title: Procentuální akontace v % z ceny
+Units: %
+Description: Akontace, kterou si kupující zvolí při koupi domu.~
+Pozn.: Je vyjádřená v procentech pořizovací ceny.
+Definition: 20
+NodeLocation: 72,264,1
+NodeSize: 52,20
+WindState: 1,147,197
+Aliases: FormNode Percent_down_paymen1
+NodeColor: 0,-13108,-1
+{!40700|Att_CellFormat: CellEntry(0,1,0)}
+
+Close Buy
+
+Module Renting
+Title: Náklady na pronájem
+Description: Tento modul obsahuje náklady na pronájem během sledovaného období.
+Author: Michal Hanus~
+Cyber Rangers
+Date: Wed, Feb 8, 1995 11:39 AM
+DefaultSize: 52,20
+NodeLocation: 216,248,1
+NodeSize: 48,24
+NodeInfo: 1,1,1,1,1,1,0
+DiagState: 2,80,257,451,0,3,10
+NodeColor: -1,-10283,-21468
+
+Variable Rent
+Title: Tok peněz spojený s náklady na pronájem (USD/rok)
+Units: $/year
+Description: Tabulka nákladů na pronájem, indexovaná podle času. Předpokládá se, že náklady na pronájem budou v průběhu času růst tempem inflace.
+Definition: Monthly_rent*12*(1 + Inflation/100)^Time
+NodeLocation: 224,64,1
+NodeSize: 56,40
+NodeInfo: 1,1,1,1,1,1,0,,0
+ValueState: 1,104,114,416,303,1,PDFP
+NodeColor: -19660,-9830,-1
+
+Variable Pv_rent
+Title: Současná hodnota pronájmu
+Description: Současná hodnota peněžních toků měsíčních nájemných plateb během časového horizontu. Hodnota všech budoucích měsíčních nájemných plateb, které jsou převedeny na jejich současnou hodnotu pomocí diskontní sazby, během stanoveného časového období (časového horizontu). ~
+~
+Poznámka:~
+Diskontní sazba je procentní míra používaná ve finančních výpočtech k převedení budoucích peněžních toků na jejich současnou hodnotu. Tato sazba odráží časovou hodnotu peněz, což znamená, že peníze dostupné dnes mají vyšší hodnotu než stejné množství peněz v budoucnu. Důvodem je možnost investovat peníze a získávat na nich úroky či jiné výnosy.
+Definition: -Npv(Discount/100,Rent,Time)
+NodeLocation: 368,64,1
+NodeSize: 56,32
+WindState: 2,227,319,464,300
+ValueState: 1,52,92,432,307,1,PDFP
+NodeColor: -19660,-9830,-1
+
+Variable Monthly_rent
+Title: Měsíční nájem
+Units: $
+Description: Měsíční nájemné na začátku sledovaného období.
+Definition: 1400
+NodeLocation: 80,64
+NodeSize: 52,20
+ValueState: 1,136,146,416,303,0,MIDM
+Aliases: FormNode Monthly_rent1
+NodeColor: -19660,-9830,-1
+{!40700|Att_CellFormat: CellEntry(0,1,0)}
+
+Close Renting
+
+Close Model1
+
+FormNode Nominal_discount_rat
+Title: Nominal discount rate
+Definition: 0
+NodeLocation: 224,92,1
+NodeSize: 160,20
+NodeInfo: 1,,,,,,,62,,,,,,0
+NodeColor: 13107,-13108,-1
+Original: Discount
+
+FormNode Rate_of_inflation
+Title: Rate of inflation
+Definition: 0
+NodeLocation: 224,132,1
+NodeSize: 160,20
+NodeInfo: 1,,,,,,,62,,,,,,0
+NodeColor: 13107,-13108,-1
+Original: Inflation
+
+FormNode Buying_price
+Title: Buying price
+Definition: 0
+NodeLocation: 608,56,1
+NodeSize: 160,16
+NodeInfo: 1,,,,,,,62,,,,,,0
+NodeColor: 26214,-1,-13108
+Original: Price
+
+FormNode Time_horizon
+Title: Time horizon
+Definition: 0
+NodeLocation: 224,56,1
+NodeSize: 160,16
+NodeInfo: 1,,,,,,,62,,,,,,0
+NodeColor: 4658,-14548,-1
+Original: Years
+
+FormNode Nominal_rate_of_appr
+Title: Nominal rate of appreciation
+Definition: 0
+NodeLocation: 608,172,1
+NodeSize: 160,20
+NodeInfo: 1,,,,,,,62,,,,,,0
+NodeColor: 26214,-1,-13108
+Original: Appreciation
+
+FormNode Total_cost_of_buying
+Title: Total cost of buying or renting
+Definition: 1
+NodeLocation: 416,300,1
+NodeSize: 224,20
+NodeColor: -1,-25694,-23186
+Original: Pv_total_cost
+
+FormNode Mortgage_interest_ra
+Title: Mortgage interest rate
+Definition: 0
+NodeLocation: 608,132,1
+NodeSize: 160,20
+NodeInfo: 1,,,,,,,62,,,,,,0
+NodeColor: 26214,-1,-13108
+Original: Mort_rate
+
+FormNode Monthly_rent1
+Title: Monthly Rent
+Definition: 0
+NodeLocation: 224,172,1
+NodeSize: 160,20
+NodeColor: -19660,-9830,-1
+Original: Monthly_rent
+
+FormNode Percent_down_paymen1
+Title: Percent Down Payment
+Definition: 0
+NodeLocation: 608,92,1
+NodeSize: 160,20
+NodeInfo: 1,,,,,,,62,,,,,,0
+NodeColor: 26214,-1,-13108
+Original: Percent_down_payment
+
+Close Rentvsbuy
+
+
+{!-40499|MsgBox("This Analytica model file contains text characters encoded in UTF-8 (Unicode) format, not ASCII. It was saved from Analytica release 6.4. You need to upgrade to Analytica 6.4  to read the model correctly. If you use it with this release, the Unicode characters may look strange and parts of the model may not work.",16,"Analytica 6.4 required")}
